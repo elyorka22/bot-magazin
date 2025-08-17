@@ -13,25 +13,25 @@ export const Header: React.FC<HeaderProps> = ({
   onMenuClick
 }) => {
   return (
-    <header className="tg-header p-4">
+    <header className="tg-header p-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button
             onClick={onMenuClick}
-            className="p-2 rounded-lg hover:bg-tg-gray-800 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-tg-gray-800 transition-colors"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5" />
           </button>
-          <h1 className="text-xl font-bold">Мужской стиль</h1>
+          <h1 className="text-lg font-bold">Мужской стиль</h1>
         </div>
         
         <button
           onClick={onCartClick}
-          className="relative p-2 rounded-lg hover:bg-tg-gray-800 transition-colors"
+          className="relative p-1.5 rounded-lg hover:bg-tg-gray-800 transition-colors"
         >
-          <ShoppingCart className="w-6 h-6" />
+          <ShoppingCart className="w-5 h-5" />
           {cartItemsCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-tg-primary text-tg-dark rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
+            <span className="absolute -top-1 -right-1 bg-tg-primary text-tg-dark rounded-full w-4 h-4 text-xs flex items-center justify-center font-bold">
               {cartItemsCount}
             </span>
           )}

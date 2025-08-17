@@ -88,11 +88,11 @@ export default function HomePage() {
         </div>
       )}
 
-      <main className="p-4">
+      <main className="p-3">
         {/* Категории */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-tg-light mb-4">Категории</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <section className="mb-6">
+          <h2 className="text-xl font-bold text-tg-light mb-3">Категории</h2>
+          <div className="grid grid-cols-2 gap-3">
             {mockCategories.map(category => (
               <CategoryCard 
                 key={category.id} 
@@ -105,21 +105,21 @@ export default function HomePage() {
 
         {/* Товары */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-tg-light">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xl font-bold text-tg-light">
               {selectedCategory ? selectedCategory.name : 'Популярные товары'}
             </h2>
             {selectedCategory && (
               <button
                 onClick={() => setSelectedCategory(null)}
-                className="text-tg-primary hover:text-tg-light transition-colors"
+                className="text-tg-primary hover:text-tg-light transition-colors text-sm"
               >
                 Показать все
               </button>
             )}
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {filteredProducts.map(product => (
               <ProductCard 
                 key={product.id} 
@@ -130,8 +130,8 @@ export default function HomePage() {
           </div>
           
           {filteredProducts.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-tg-gray-400">Товары не найдены</p>
+            <div className="text-center py-6">
+              <p className="text-tg-gray-400 text-sm">Товары не найдены</p>
             </div>
           )}
         </section>
