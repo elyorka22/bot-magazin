@@ -28,6 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onCartClick}
           className="relative p-1.5 rounded-lg hover:bg-tg-gray-800 transition-colors"
+          disabled={cartItemsCount === 0}
         >
           <ShoppingCart className="w-5 h-5" />
           {cartItemsCount > 0 && (

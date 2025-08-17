@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Header } from '../components/Header'
 import { ProductCard } from '../components/ProductCard'
 import { CategoryCard } from '../components/CategoryCard'
+import { Cart } from '../components/Cart'
 import { initializeTelegramApp } from '../lib/telegram'
 import { mockCategories, mockProducts } from '../data/mockData'
 import { Product, Category, CartItem } from '../types'
@@ -12,6 +13,7 @@ export default function HomePage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [showMenu, setShowMenu] = useState(false)
+  const [showCart, setShowCart] = useState(false)
 
   useEffect(() => {
     // Инициализация Telegram WebApp
@@ -39,6 +41,47 @@ export default function HomePage() {
     }
   }
 
+  const updateCartItemQuantity = (productId: string, quantity: number) => {
+    setCartItems(prev => 
+      prev.map(item => 
+        item.product_id === productId 
+          ? { ...item, quantity }
+          : item
+      )
+    )
+  }
+
+  const removeCartItem = (productId: string) => {
+    setCartItems(prev => prev.filter(item => item.product_id !== productId))
+  }
+
+  const handleCheckout = async (orderData: any) => {
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Очищаем корзину после успешного заказа
+        setCartItems([])
+        
+        // Показываем уведомление об успешном заказе
+        alert('Заказ успешно оформлен! Мы свяжемся с вами в ближайшее время.')
+      } else {
+        throw new Error(result.error || 'Ошибка оформления заказа')
+      }
+    } catch (error) {
+      console.error('Ошибка оформления заказа:', error)
+      throw error
+    }
+  }
+
   const handleCategoryClick = (category: Category) => {
     setSelectedCategory(category)
     setShowMenu(false)
@@ -54,7 +97,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-tg-dark">
       <Header 
         cartItemsCount={cartItemsCount}
-        onCartClick={() => {/* TODO: Открыть корзину */}}
+        onCartClick={() => setShowCart(true)}
         onMenuClick={() => setShowMenu(!showMenu)}
       />
 
@@ -86,6 +129,17 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Корзина */}
+      {showCart && (
+        <Cart
+          cartItems={cartItems}
+          onClose={() => setShowCart(false)}
+          onUpdateQuantity={updateCartItemQuantity}
+          onRemoveItem={removeCartItem}
+          onCheckout={handleCheckout}
+        />
       )}
 
       <main className="p-3">
