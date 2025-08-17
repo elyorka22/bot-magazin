@@ -24,7 +24,7 @@ EXPOSE 3001
 
 ENV NODE_ENV=production
 
-# Создаем health check endpoint
+# Создаем простой health check endpoint
 RUN echo '{"status":"ok"}' > /app/health.json
 
 CMD ["npm", "start"] 

@@ -1,5 +1,7 @@
 import { Telegraf } from 'telegraf'
 import dotenv from 'dotenv'
+import express from 'express'
+import cors from 'cors'
 import { CommandHandlers } from './handlers/commandHandlers'
 import { CallbackHandlers } from './handlers/callbackHandlers'
 import { OrderService } from './services/orderService'
@@ -8,6 +10,33 @@ import { testConnection } from './config/database'
 
 // Загружаем переменные окружения
 dotenv.config()
+
+// Создаем Express сервер для health check
+const app = express()
+const PORT = process.env.PORT || 3001
+
+// Middleware
+app.use(cors())
+app.use(express.json())
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+})
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    service: 'telegram-bot',
+    timestamp: new Date().toISOString() 
+  })
+})
+
+// Запускаем HTTP сервер
+app.listen(PORT, () => {
+  console.log(`🌐 HTTP сервер запущен на порту ${PORT}`)
+})
 
 // Проверяем наличие токена
 if (!process.env.BOT_TOKEN) {
