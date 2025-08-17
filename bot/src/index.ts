@@ -186,8 +186,7 @@ async function startBot() {
     // Проверяем подключение к базе данных
     const dbConnected = await testConnection()
     if (!dbConnected) {
-      console.error('❌ Не удалось подключиться к базе данных')
-      process.exit(1)
+      console.log('⚠️  Бот запускается в режиме тестирования без базы данных')
     }
 
     // Запускаем бота
