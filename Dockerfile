@@ -9,16 +9,8 @@ COPY package*.json ./
 # Устанавливаем зависимости
 RUN npm ci
 
-# Копируем исходный код (исключая bot папку)
-COPY app/ ./app/
-COPY components/ ./components/
-COPY lib/ ./lib/
-COPY types/ ./types/
-COPY public/ ./public/
-COPY next.config.js ./
-COPY tailwind.config.js ./
-COPY postcss.config.js ./
-COPY tsconfig.json ./
+# Копируем весь исходный код (кроме того, что исключено в .dockerignore)
+COPY . .
 
 # Собираем Next.js приложение
 RUN npm run build:web
