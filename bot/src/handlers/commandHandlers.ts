@@ -19,18 +19,13 @@ export class CommandHandlers {
     await ctx.reply(welcomeMessage, {
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: [
-          [
-            { text: '🛍 Открыть магазин', web_app: { url: process.env.MINI_APP_URL! } }
-          ],
-          [
-            { text: '📦 Мои заказы', callback_data: 'my_orders' },
-            { text: '📞 Поддержка', callback_data: 'support' }
-          ],
-          [
-            { text: 'ℹ️ О магазине', callback_data: 'about' }
-          ]
-        ]
+        keyboard: [
+          ['🛍 Открыть магазин'],
+          ['📦 Мои заказы', '📞 Поддержка'],
+          ['ℹ️ О магазине']
+        ],
+        resize_keyboard: true,
+        one_time_keyboard: false
       }
     })
   }
@@ -60,18 +55,13 @@ export class CommandHandlers {
     await ctx.reply(helpMessage, {
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: [
-          [
-            { text: '🛍 Открыть магазин', web_app: { url: process.env.MINI_APP_URL! } }
-          ],
-          [
-            { text: '📦 Мои заказы', callback_data: 'my_orders' },
-            { text: '📞 Поддержка', callback_data: 'support' }
-          ],
-          [
-            { text: 'ℹ️ О магазине', callback_data: 'about' }
-          ]
-        ]
+        keyboard: [
+          ['🛍 Открыть магазин'],
+          ['📦 Мои заказы', '📞 Поддержка'],
+          ['ℹ️ О магазине']
+        ],
+        resize_keyboard: true,
+        one_time_keyboard: false
       }
     })
   }
@@ -89,14 +79,12 @@ export class CommandHandlers {
       if (orders.length === 0) {
         await ctx.reply('📦 У вас пока нет заказов', {
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: '🛍 Сделать первый заказ', web_app: { url: process.env.MINI_APP_URL! } }
-              ],
-              [
-                { text: '🔙 Главное меню', callback_data: 'main_menu' }
-              ]
-            ]
+            keyboard: [
+              ['🛍 Сделать первый заказ'],
+              ['🔙 Главное меню']
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: false
           }
         })
         return
@@ -106,14 +94,12 @@ export class CommandHandlers {
       await ctx.reply(message, {
         parse_mode: 'Markdown',
         reply_markup: {
-          inline_keyboard: [
-            [
-              { text: '🛍 Сделать новый заказ', web_app: { url: process.env.MINI_APP_URL! } }
-            ],
-            [
-              { text: '🔙 Главное меню', callback_data: 'main_menu' }
-            ]
-          ]
+          keyboard: [
+            ['🛍 Сделать новый заказ'],
+            ['🔙 Главное меню']
+          ],
+          resize_keyboard: true,
+          one_time_keyboard: false
         }
       })
     } catch (error) {
@@ -140,11 +126,11 @@ export class CommandHandlers {
     await ctx.reply(supportMessage, {
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: [
-          [
-            { text: '🔙 Главное меню', callback_data: 'main_menu' }
-          ]
-        ]
+        keyboard: [
+          ['🔙 Главное меню']
+        ],
+        resize_keyboard: true,
+        one_time_keyboard: false
       }
     })
   }
@@ -176,14 +162,12 @@ export class CommandHandlers {
     await ctx.reply(aboutMessage, {
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: [
-          [
-            { text: '🛍 Перейти в магазин', web_app: { url: process.env.MINI_APP_URL! } }
-          ],
-          [
-            { text: '🔙 Главное меню', callback_data: 'main_menu' }
-          ]
-        ]
+        keyboard: [
+          ['🛍 Перейти в магазин'],
+          ['🔙 Главное меню']
+        ],
+        resize_keyboard: true,
+        one_time_keyboard: false
       }
     })
   }
@@ -215,15 +199,12 @@ export class CommandHandlers {
       await ctx.reply(statsMessage, {
         parse_mode: 'Markdown',
         reply_markup: {
-          inline_keyboard: [
-            [
-              { text: '➕ Добавить товар', web_app: { url: `${process.env.MINI_APP_URL}/admin` } }
-            ],
-            [
-              { text: '📦 Все заказы', callback_data: 'admin_orders' },
-              { text: '🔙 Главное меню', callback_data: 'main_menu' }
-            ]
-          ]
+          keyboard: [
+            ['➕ Добавить товар'],
+            ['📦 Все заказы', '🔙 Главное меню']
+          ],
+          resize_keyboard: true,
+          one_time_keyboard: false
         }
       })
     } catch (error) {

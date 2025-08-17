@@ -90,9 +90,155 @@ if (process.env.BOT_TOKEN) {
   bot.command('stats', CommandHandlers.handleStats)
 
   // Обработчик всех текстовых сообщений
-  bot.on('text', (ctx) => {
-    console.log('📝 Получено сообщение:', ctx.message.text)
-    ctx.reply('Спасибо за ваше сообщение! Мы скоро с вами свяжемся.')
+  bot.on('text', async (ctx) => {
+    const message = ctx.message.text
+    console.log('📝 Получено сообщение:', message)
+
+    // Обработка нажатий на кнопки
+    switch (message) {
+      case '🛍 Открыть магазин':
+        await ctx.reply('Открываю магазин...', {
+          reply_markup: {
+            keyboard: [
+              [{ text: '🛍 Открыть магазин', web_app: { url: process.env.MINI_APP_URL! } }]
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: false
+          }
+        })
+        break
+
+      case '📦 Мои заказы':
+        await CommandHandlers.handleOrders(ctx)
+        break
+
+      case '📞 Поддержка':
+        await CommandHandlers.handleSupport(ctx)
+        break
+
+      case 'ℹ️ О магазине':
+        await CommandHandlers.handleAbout(ctx)
+        break
+
+      case '🔙 Главное меню':
+        await CommandHandlers.handleStart(ctx)
+        break
+
+      case '🛍 Сделать первый заказ':
+      case '🛍 Сделать новый заказ':
+      case '🛍 Перейти в магазин':
+        await ctx.reply('Открываю магазин...', {
+          reply_markup: {
+            keyboard: [
+              [{ text: '🛍 Открыть магазин', web_app: { url: process.env.MINI_APP_URL! } }]
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: false
+          }
+        })
+        break
+
+      case '➕ Добавить товар':
+        // Проверяем, является ли пользователь админом
+        const adminChatId1 = process.env.ADMIN_CHAT_ID
+        const userId1 = ctx.from?.id
+
+        if (!adminChatId1 || userId1?.toString() !== adminChatId1) {
+          await ctx.reply('❌ У вас нет доступа к этой функции')
+          return
+        }
+
+        await ctx.reply('Открываю админ-панель...', {
+          reply_markup: {
+            keyboard: [
+              [{ text: '➕ Добавить товар', web_app: { url: `${process.env.MINI_APP_URL}/admin` } }]
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: false
+          }
+        })
+        break
+
+      case '📦 Все заказы':
+        // Проверяем, является ли пользователь админом
+        const adminChatId2 = process.env.ADMIN_CHAT_ID
+        const userId2 = ctx.from?.id
+
+        if (!adminChatId2 || userId2?.toString() !== adminChatId2) {
+          await ctx.reply('❌ У вас нет доступа к этой функции')
+          return
+        }
+
+        try {
+          const orders = await OrderService.getAllOrders()
+          
+          if (orders.length === 0) {
+            await ctx.reply('📦 Заказов пока нет', {
+              reply_markup: {
+                keyboard: [
+                  ['➕ Добавить товар'],
+                  ['🔙 Главное меню']
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: false
+              }
+            })
+            return
+          }
+
+          const message = MessageFormatter.formatOrdersList(orders)
+          await ctx.reply(message, {
+            parse_mode: 'Markdown',
+            reply_markup: {
+              keyboard: [
+                ['➕ Добавить товар'],
+                ['📊 Статистика', '🔙 Главное меню']
+              ],
+              resize_keyboard: true,
+              one_time_keyboard: false
+            }
+          })
+        } catch (error) {
+          console.error('Ошибка получения заказов админа:', error)
+          await ctx.reply('❌ Произошла ошибка при получении заказов')
+        }
+        break
+
+      case '📊 Статистика':
+        // Проверяем, является ли пользователь админом
+        const adminChatId3 = process.env.ADMIN_CHAT_ID
+        const userId3 = ctx.from?.id
+
+        if (!adminChatId3 || userId3?.toString() !== adminChatId3) {
+          await ctx.reply('❌ У вас нет доступа к этой функции')
+          return
+        }
+
+        await CommandHandlers.handleStats(ctx)
+        break
+
+      default:
+        // Обработка сообщений поддержки
+        const adminChatId4 = process.env.ADMIN_CHAT_ID
+        if (adminChatId4) {
+          const user = ctx.from
+          const userInfo = `👤 Пользователь: ${user?.first_name} ${user?.last_name || ''}\n`
+          const username = user?.username ? `@${user.username}\n` : ''
+          const userId = `ID: ${user?.id}\n\n`
+          const fullMessage = userInfo + username + userId + message
+
+          try {
+            await ctx.telegram.sendMessage(adminChatId4, fullMessage)
+            await ctx.reply('✅ Ваше сообщение отправлено в поддержку. Мы ответим вам в ближайшее время.')
+          } catch (error) {
+            console.error('Ошибка отправки сообщения админу:', error)
+            await ctx.reply('❌ Произошла ошибка при отправке сообщения. Попробуйте позже.')
+          }
+        } else {
+          await ctx.reply('💬 Спасибо за ваше сообщение! Мы скоро с вами свяжемся.')
+        }
+        break
+    }
   })
 
   // Обработчик ошибок
