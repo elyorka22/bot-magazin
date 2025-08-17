@@ -13,5 +13,4 @@ yarn-error.log*
 *.tsbuildinfo
 coverage
 .nyc_output
-bot/
 bot-repo/ 

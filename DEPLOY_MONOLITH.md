@@ -1,8 +1,10 @@
-# 🚀 Деплой монолитного репозитория на Railway
+# 🚀 Деплой на Railway
 
-## 📋 Что такое монолитный репозиторий?
+## 📋 Стратегия деплоя
 
-Монолитный репозиторий содержит и веб-приложение (Next.js), и Telegram бота в одном репозитории. Railway может деплоить оба сервиса из одного репозитория.
+Для надежного деплоя мы создадим **два отдельных сервиса** в Railway:
+1. **web-app** - веб-приложение (Next.js)
+2. **telegram-bot** - Telegram бот
 
 ## 🏗️ Структура проекта
 
@@ -14,7 +16,8 @@ bot-magazin/
 ├── Dockerfile              # Для веб-приложения
 ├── bot/Dockerfile          # Для бота
 ├── docker-compose.yml      # Локальная разработка
-├── railway.json            # Конфигурация Railway
+├── railway.json            # Конфигурация веб-приложения
+├── bot/railway.json        # Конфигурация бота
 └── package.json            # Корневой package.json
 ```
 
@@ -27,14 +30,34 @@ bot-magazin/
 3. Выберите "Deploy from GitHub repo"
 4. Выберите репозиторий `elyorka22/bot-magazin`
 
-### 2. Настройка переменных окружения
+### 2. Создание второго сервиса
 
-В Railway Dashboard → Variables добавьте:
+После создания первого сервиса:
+1. В Railway Dashboard нажмите "New Service"
+2. Выберите "GitHub Repo"
+3. Выберите тот же репозиторий `elyorka22/bot-magazin`
+4. В настройках укажите:
+   - **Root Directory**: `bot`
+   - **Build Command**: `npm run build`
+   - **Start Command**: `npm start`
 
+### 3. Настройка переменных окружения
+
+#### Для веб-приложения (web-app):
 ```env
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://hzvfnayrcwinqpaksdnm.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6dmZuYXlyY3dpbnFwYWtzZG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NDA5MzYsImV4cCI6MjA3MTAxNjkzNn0.TrnsqlL1hx48t4VUeqg_vFgXvb2ZUbdrZb8Ult3zL7o
+
+# Environment
+NODE_ENV=production
+```
+
+#### Для бота (telegram-bot):
+```env
+# Supabase Configuration
+SUPABASE_URL=https://hzvfnayrcwinqpaksdnm.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6dmZuYXlyY3dpbnFwYWtzZG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NDA5MzYsImV4cCI6MjA3MTAxNjkzNn0.TrnsqlL1hx48t4VUeqg_vFgXvb2ZUbdrZb8Ult3zL7o
 SUPABASE_SERVICE_ROLE_KEY=ВАШ_SERVICE_ROLE_KEY
 
 # Telegram Bot Configuration
@@ -45,20 +68,13 @@ ADMIN_CHAT_ID=1129806592
 NODE_ENV=production
 ```
 
-### 3. Настройка сервисов
-
-Railway автоматически создаст два сервиса:
-
-1. **web-app** - веб-приложение (Next.js)
-2. **telegram-bot** - Telegram бот
-
 ### 4. Настройка доменов
 
 После деплоя Railway создаст домены:
 - `https://your-app-name.railway.app` - для веб-приложения
-- `https://your-app-name-bot.railway.app` - для бота
+- `https://your-bot-name.railway.app` - для бота
 
-Обновите переменную:
+Обновите переменную в боте:
 ```env
 MINI_APP_URL=https://your-app-name.railway.app
 ```
@@ -143,7 +159,7 @@ Railway предоставляет:
 - **Бесплатный план**: $5 кредитов в месяц
 - **Платный план**: $20/месяц за 1000 часов
 
-Для монолитного репозитория с двумя сервисами может потребоваться платный план.
+Для двух сервисов может потребоваться платный план.
 
 ## ✅ Проверка деплоя
 

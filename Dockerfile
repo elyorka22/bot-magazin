@@ -5,20 +5,23 @@ WORKDIR /app
 
 # Копируем файлы package.json
 COPY package*.json ./
-COPY bot/package*.json ./bot/
 
 # Устанавливаем зависимости
 RUN npm ci
-RUN cd bot && npm ci
 
-# Копируем исходный код
-COPY . .
+# Копируем исходный код (исключая bot папку)
+COPY app/ ./app/
+COPY components/ ./components/
+COPY lib/ ./lib/
+COPY types/ ./types/
+COPY public/ ./public/
+COPY next.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
+COPY tsconfig.json ./
 
 # Собираем Next.js приложение
 RUN npm run build:web
-
-# Собираем бота
-RUN cd bot && npm run build
 
 # Продакшн образ для веб-приложения
 FROM node:18-alpine AS web-production
