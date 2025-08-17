@@ -39,10 +39,48 @@ TELEGRAM_BOT_TOKEN=7252780069:AAFScwII3euyAvqmZHuxxvAoKzovgkeKtVk
 NODE_ENV=production
 ```
 
-### 3. Настройка домена
-1. Railway автоматически создаст домен вида: `your-app-name.railway.app`
-2. Скопируйте этот URL
-3. Обновите переменную `NEXT_PUBLIC_MINI_APP_URL` с этим URL
+### 3. Настройка домена (ПОДРОБНОЕ ОБЪЯСНЕНИЕ)
+
+#### Что такое домен?
+Домен - это адрес вашего сайта в интернете. Например: `https://my-shop.railway.app`
+
+#### Как Railway создает домен:
+1. **Автоматически**: Railway создает домен вида: `your-app-name.railway.app`
+2. **Пример**: Если ваш проект называется "bot-magazin", то домен будет: `bot-magazin.railway.app`
+
+#### Пошаговая настройка:
+
+**Шаг 1: Получить домен**
+1. После деплоя в Railway Dashboard найдите раздел "Settings"
+2. В разделе "Domains" вы увидите автоматически созданный домен
+3. Он будет выглядеть примерно так: `https://bot-magazin-production-1234.up.railway.app`
+
+**Шаг 2: Скопировать URL**
+1. Нажмите на домен, чтобы скопировать его
+2. Или просто выделите и скопируйте URL
+
+**Шаг 3: Обновить переменную окружения**
+1. В Railway Dashboard → Variables
+2. Добавьте новую переменную:
+   ```
+   NEXT_PUBLIC_MINI_APP_URL=https://bot-magazin-production-1234.up.railway.app
+   ```
+3. Замените URL на ваш реальный домен
+
+#### Зачем это нужно?
+- **Telegram Mini App** должен знать свой URL
+- **Бот** использует этот URL для кнопки "Открыть магазин"
+- **Пользователи** переходят по этому URL из Telegram
+
+#### Примеры доменов:
+```
+✅ Правильно:
+NEXT_PUBLIC_MINI_APP_URL=https://bot-magazin-production-1234.up.railway.app
+
+❌ Неправильно:
+NEXT_PUBLIC_MINI_APP_URL=your-app-url.railway.app
+NEXT_PUBLIC_MINI_APP_URL=https://example.com
+```
 
 ### 4. Настройка Telegram Bot
 1. Отправьте @BotFather команду `/setmenubutton`
