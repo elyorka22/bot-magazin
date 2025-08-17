@@ -1,19 +1,13 @@
 import { Context } from 'telegraf'
-import { OrderService } from '../services/orderService'
 import { MessageFormatter } from '../utils/messageFormatter'
+import { OrderService } from '../services/orderService'
 
 export class CallbackHandlers {
-  // Обработчик главного меню
   static async handleMainMenu(ctx: Context) {
     const welcomeMessage = `
-🎉 *Добро пожаловать в магазин "Мужской стиль"!*
+🎉 *Главное меню магазина "Мужской стиль"*
 
-Здесь вы можете:
-🛍 Просматривать товары
-📦 Отслеживать заказы
-💬 Получать поддержку
-
-Используйте кнопки ниже для навигации:
+Выберите действие:
     `
 
     await ctx.editMessageText(welcomeMessage, {
@@ -35,18 +29,33 @@ export class CallbackHandlers {
     })
   }
 
-  // Обработчик "Мои заказы"
   static async handleMyOrders(ctx: Context) {
+    const userId = ctx.from?.id
+    if (!userId) {
+      await ctx.answerCbQuery('❌ Ошибка: не удалось определить пользователя')
+      return
+    }
+
     try {
-      const userId = ctx.from?.id
-      if (!userId) {
-        await ctx.answerCbQuery('❌ Ошибка: не удалось определить пользователя')
+      const orders = await OrderService.getUserOrders(userId)
+      
+      if (orders.length === 0) {
+        await ctx.editMessageText('📦 У вас пока нет заказов', {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: '🛍 Сделать первый заказ', web_app: { url: process.env.MINI_APP_URL! } }
+              ],
+              [
+                { text: '🔙 Главное меню', callback_data: 'main_menu' }
+              ]
+            ]
+          }
+        })
         return
       }
 
-      const orders = await OrderService.getUserOrders(userId)
       const message = MessageFormatter.formatOrdersList(orders)
-
       await ctx.editMessageText(message, {
         parse_mode: 'Markdown',
         reply_markup: {
@@ -55,7 +64,7 @@ export class CallbackHandlers {
               { text: '🛍 Сделать новый заказ', web_app: { url: process.env.MINI_APP_URL! } }
             ],
             [
-              { text: '🔙 Назад', callback_data: 'main_menu' }
+              { text: '🔙 Главное меню', callback_data: 'main_menu' }
             ]
           ]
         }
@@ -66,18 +75,19 @@ export class CallbackHandlers {
     }
   }
 
-  // Обработчик "Поддержка"
   static async handleSupport(ctx: Context) {
     const supportMessage = `
-📞 *Поддержка*
+📞 *Служба поддержки*
 
-Если у вас есть вопросы или нужна помощь:
+Если у вас есть вопросы по заказам, доставке или товарам, напишите нам сообщение, и мы ответим в ближайшее время.
 
-*Телефон:* +7 (XXX) XXX-XX-XX
-*Email:* support@example.com
-*Время работы:* Пн-Пт 9:00-18:00
+*Время работы:* 9:00 - 21:00 (МСК)
+*Способы связи:*
+• Через этот бот
+• Телефон: +7 (XXX) XXX-XX-XX
+• Email: support@example.com
 
-Или напишите нам прямо здесь, и мы ответим в ближайшее время.
+Напишите ваш вопрос:
     `
 
     await ctx.editMessageText(supportMessage, {
@@ -85,14 +95,13 @@ export class CallbackHandlers {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: '🔙 Назад', callback_data: 'main_menu' }
+            { text: '🔙 Главное меню', callback_data: 'main_menu' }
           ]
         ]
       }
     })
   }
 
-  // Обработчик "О магазине"
   static async handleAbout(ctx: Context) {
     const aboutMessage = `
 🏪 *О магазине "Мужской стиль"*
@@ -100,24 +109,21 @@ export class CallbackHandlers {
 Мы специализируемся на качественной мужской одежде и аксессуарах.
 
 *Наши преимущества:*
-✅ Качественные материалы
-✅ Современный дизайн
-✅ Быстрая доставка
-✅ Удобная оплата
-✅ Гарантия качества
+• ✅ Качественные материалы
+• 🚚 Быстрая доставка
+• 💳 Оплата при получении
+• 🔄 Возврат в течение 14 дней
+• 📞 Поддержка 24/7
 
 *Категории товаров:*
-👕 Футболки и рубашки
-👖 Джинсы и брюки
-🧥 Куртки и пальто
-🏃 Спортивная одежда
-👟 Обувь
-🎩 Аксессуары
+• 👔 Костюмы и пиджаки
+• 👕 Рубашки и футболки
+• 👖 Брюки и джинсы
+• 👟 Обувь
+• 🎒 Аксессуары
 
-*Контакты:*
-📍 Адрес: ул. Примерная, 123
-📞 Телефон: +7 (XXX) XXX-XX-XX
-🌐 Сайт: example.com
+*Доставка:* по всей России
+*Оплата:* наличными при получении
     `
 
     await ctx.editMessageText(aboutMessage, {
@@ -128,75 +134,60 @@ export class CallbackHandlers {
             { text: '🛍 Перейти в магазин', web_app: { url: process.env.MINI_APP_URL! } }
           ],
           [
-            { text: '🔙 Назад', callback_data: 'main_menu' }
+            { text: '🔙 Главное меню', callback_data: 'main_menu' }
           ]
         ]
       }
     })
   }
 
-  // Обработчик просмотра заказа
   static async handleViewOrder(ctx: Context, orderId: string) {
     try {
       const order = await OrderService.getOrderById(orderId)
-      if (!order) {
+      const items = await OrderService.getOrderItems(orderId)
+
+      if (!order || !items) {
         await ctx.answerCbQuery('❌ Заказ не найден')
         return
       }
 
-      const items = await OrderService.getOrderItems(orderId)
       const message = MessageFormatter.formatOrderForUser(order, items)
-
       await ctx.editMessageText(message, {
         parse_mode: 'Markdown',
         reply_markup: {
           inline_keyboard: [
             [
-              { text: '🔙 К списку заказов', callback_data: 'my_orders' }
+              { text: '🛍 Сделать еще заказ', web_app: { url: process.env.MINI_APP_URL! } }
             ],
             [
-              { text: '🛍 Новый заказ', web_app: { url: process.env.MINI_APP_URL! } }
+              { text: '📦 Мои заказы', callback_data: 'my_orders' },
+              { text: '🔙 Главное меню', callback_data: 'main_menu' }
             ]
           ]
         }
       })
     } catch (error) {
-      console.error('Ошибка получения заказа:', error)
-      await ctx.answerCbQuery('❌ Произошла ошибка при получении заказа')
+      console.error('Ошибка просмотра заказа:', error)
+      await ctx.answerCbQuery('❌ Произошла ошибка при просмотре заказа')
     }
   }
 
-  // Обработчик подтверждения заказа (для админов)
   static async handleConfirmOrder(ctx: Context, orderId: string) {
-    const adminChatId = process.env.ADMIN_CHAT_ID
-    const userId = ctx.from?.id
-
-    if (userId?.toString() !== adminChatId) {
-      await ctx.answerCbQuery('❌ У вас нет доступа к этой функции')
-      return
-    }
-
     try {
       const success = await OrderService.updateOrderStatus(orderId, 'confirmed')
       if (success) {
         await ctx.answerCbQuery('✅ Заказ подтвержден')
-        // Обновляем сообщение
-        const order = await OrderService.getOrderById(orderId)
-        const items = await OrderService.getOrderItems(orderId)
-        if (order) {
-          const message = MessageFormatter.formatOrderForAdmin(order, items)
-          await ctx.editMessageText(message, {
-            parse_mode: 'Markdown',
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: '🚚 Отправить', callback_data: `ship_order_${orderId}` },
-                  { text: '❌ Отменить', callback_data: `cancel_order_${orderId}` }
-                ]
-              ]
-            }
-          })
-        }
+        await ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [
+              { text: '📦 Отправить заказ', callback_data: `ship_order_${orderId}` },
+              { text: '❌ Отменить заказ', callback_data: `cancel_order_${orderId}` }
+            ],
+            [
+              { text: '🔙 К списку заказов', callback_data: 'admin_orders' }
+            ]
+          ]
+        })
       } else {
         await ctx.answerCbQuery('❌ Ошибка подтверждения заказа')
       }
@@ -206,36 +197,21 @@ export class CallbackHandlers {
     }
   }
 
-  // Обработчик отправки заказа (для админов)
   static async handleShipOrder(ctx: Context, orderId: string) {
-    const adminChatId = process.env.ADMIN_CHAT_ID
-    const userId = ctx.from?.id
-
-    if (userId?.toString() !== adminChatId) {
-      await ctx.answerCbQuery('❌ У вас нет доступа к этой функции')
-      return
-    }
-
     try {
       const success = await OrderService.updateOrderStatus(orderId, 'shipped')
       if (success) {
-        await ctx.answerCbQuery('🚚 Заказ отправлен')
-        // Обновляем сообщение
-        const order = await OrderService.getOrderById(orderId)
-        const items = await OrderService.getOrderItems(orderId)
-        if (order) {
-          const message = MessageFormatter.formatOrderForAdmin(order, items)
-          await ctx.editMessageText(message, {
-            parse_mode: 'Markdown',
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: '🎉 Доставлен', callback_data: `deliver_order_${orderId}` }
-                ]
-              ]
-            }
-          })
-        }
+        await ctx.answerCbQuery('📦 Заказ отправлен')
+        await ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [
+              { text: '✅ Доставлен', callback_data: `deliver_order_${orderId}` }
+            ],
+            [
+              { text: '🔙 К списку заказов', callback_data: 'admin_orders' }
+            ]
+          ]
+        })
       } else {
         await ctx.answerCbQuery('❌ Ошибка отправки заказа')
       }
@@ -245,67 +221,139 @@ export class CallbackHandlers {
     }
   }
 
-  // Обработчик доставки заказа (для админов)
   static async handleDeliverOrder(ctx: Context, orderId: string) {
-    const adminChatId = process.env.ADMIN_CHAT_ID
-    const userId = ctx.from?.id
-
-    if (userId?.toString() !== adminChatId) {
-      await ctx.answerCbQuery('❌ У вас нет доступа к этой функции')
-      return
-    }
-
     try {
       const success = await OrderService.updateOrderStatus(orderId, 'delivered')
       if (success) {
-        await ctx.answerCbQuery('🎉 Заказ доставлен')
-        // Обновляем сообщение
-        const order = await OrderService.getOrderById(orderId)
-        const items = await OrderService.getOrderItems(orderId)
-        if (order) {
-          const message = MessageFormatter.formatOrderForAdmin(order, items)
-          await ctx.editMessageText(message, {
-            parse_mode: 'Markdown'
-          })
-        }
+        await ctx.answerCbQuery('✅ Заказ доставлен')
+        await ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [
+              { text: '✅ Заказ выполнен', callback_data: 'admin_orders' }
+            ]
+          ]
+        })
       } else {
         await ctx.answerCbQuery('❌ Ошибка обновления статуса')
       }
     } catch (error) {
-      console.error('Ошибка обновления статуса:', error)
+      console.error('Ошибка доставки заказа:', error)
       await ctx.answerCbQuery('❌ Произошла ошибка')
     }
   }
 
-  // Обработчик отмены заказа (для админов)
   static async handleCancelOrder(ctx: Context, orderId: string) {
-    const adminChatId = process.env.ADMIN_CHAT_ID
-    const userId = ctx.from?.id
-
-    if (userId?.toString() !== adminChatId) {
-      await ctx.answerCbQuery('❌ У вас нет доступа к этой функции')
-      return
-    }
-
     try {
       const success = await OrderService.updateOrderStatus(orderId, 'cancelled')
       if (success) {
         await ctx.answerCbQuery('❌ Заказ отменен')
-        // Обновляем сообщение
-        const order = await OrderService.getOrderById(orderId)
-        const items = await OrderService.getOrderItems(orderId)
-        if (order) {
-          const message = MessageFormatter.formatOrderForAdmin(order, items)
-          await ctx.editMessageText(message, {
-            parse_mode: 'Markdown'
-          })
-        }
+        await ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [
+              { text: '🔙 К списку заказов', callback_data: 'admin_orders' }
+            ]
+          ]
+        })
       } else {
         await ctx.answerCbQuery('❌ Ошибка отмены заказа')
       }
     } catch (error) {
       console.error('Ошибка отмены заказа:', error)
       await ctx.answerCbQuery('❌ Произошла ошибка')
+    }
+  }
+
+  static async handleAdminOrders(ctx: Context) {
+    // Проверяем, является ли пользователь админом
+    const adminChatId = process.env.ADMIN_CHAT_ID
+    const userId = ctx.from?.id
+
+    if (!adminChatId || userId?.toString() !== adminChatId) {
+      await ctx.answerCbQuery('❌ У вас нет доступа к этой функции')
+      return
+    }
+
+    try {
+      const orders = await OrderService.getAllOrders()
+      
+      if (orders.length === 0) {
+        await ctx.editMessageText('📦 Заказов пока нет', {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: '➕ Добавить товар', web_app: { url: `${process.env.MINI_APP_URL}/admin` } }
+              ],
+              [
+                { text: '🔙 Главное меню', callback_data: 'main_menu' }
+              ]
+            ]
+          }
+        })
+        return
+      }
+
+      const message = MessageFormatter.formatOrdersList(orders)
+      await ctx.editMessageText(message, {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '➕ Добавить товар', web_app: { url: `${process.env.MINI_APP_URL}/admin` } }
+            ],
+            [
+              { text: '📊 Статистика', callback_data: 'admin_stats' },
+              { text: '🔙 Главное меню', callback_data: 'main_menu' }
+            ]
+          ]
+        }
+      })
+    } catch (error) {
+      console.error('Ошибка получения заказов админа:', error)
+      await ctx.answerCbQuery('❌ Произошла ошибка при получении заказов')
+    }
+  }
+
+  static async handleAdminStats(ctx: Context) {
+    // Проверяем, является ли пользователь админом
+    const adminChatId = process.env.ADMIN_CHAT_ID
+    const userId = ctx.from?.id
+
+    if (!adminChatId || userId?.toString() !== adminChatId) {
+      await ctx.answerCbQuery('❌ У вас нет доступа к этой функции')
+      return
+    }
+
+    try {
+      const stats = await OrderService.getOrderStats()
+      const statsMessage = `
+📊 *Статистика магазина*
+
+*Заказы:*
+• Всего заказов: ${stats.total}
+• Новых заказов: ${stats.pending}
+• Подтвержденных: ${stats.confirmed}
+• Отправленных: ${stats.shipped}
+• Доставленных: ${stats.delivered}
+• Отмененных: ${stats.cancelled}
+    `
+
+      await ctx.editMessageText(statsMessage, {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '➕ Добавить товар', web_app: { url: `${process.env.MINI_APP_URL}/admin` } }
+            ],
+            [
+              { text: '📦 Все заказы', callback_data: 'admin_orders' },
+              { text: '🔙 Главное меню', callback_data: 'main_menu' }
+            ]
+          ]
+        }
+      })
+    } catch (error) {
+      console.error('Ошибка получения статистики:', error)
+      await ctx.answerCbQuery('❌ Произошла ошибка при получении статистики')
     }
   }
 } 

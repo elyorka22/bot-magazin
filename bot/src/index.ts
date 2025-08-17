@@ -2,6 +2,11 @@ import { Telegraf } from 'telegraf'
 import dotenv from 'dotenv'
 import express from 'express'
 import cors from 'cors'
+import { CommandHandlers } from './handlers/commandHandlers'
+import { CallbackHandlers } from './handlers/callbackHandlers'
+import { OrderService } from './services/orderService'
+import { MessageFormatter } from './utils/messageFormatter'
+import { testConnection } from './config/database'
 
 // Загружаем переменные окружения
 dotenv.config()
@@ -76,16 +81,13 @@ if (process.env.BOT_TOKEN) {
   console.log('✅ BOT_TOKEN найден, инициализируем бота...')
   bot = new Telegraf(process.env.BOT_TOKEN)
 
-  // Простой обработчик команды start
-  bot.start((ctx) => {
-    console.log('👋 Получена команда /start от пользователя:', ctx.from?.id)
-    ctx.reply('Привет! Я бот магазина мужской одежды. 🛍')
-  })
-
-  // Простой обработчик команды help
-  bot.help((ctx) => {
-    ctx.reply('Доступные команды:\n/start - Главное меню\n/help - Помощь')
-  })
+  // Обработчики команд
+  bot.start(CommandHandlers.handleStart)
+  bot.help(CommandHandlers.handleHelp)
+  bot.command('orders', CommandHandlers.handleOrders)
+  bot.command('support', CommandHandlers.handleSupport)
+  bot.command('about', CommandHandlers.handleAbout)
+  bot.command('stats', CommandHandlers.handleStats)
 
   // Обработчик всех текстовых сообщений
   bot.on('text', (ctx) => {
@@ -97,6 +99,40 @@ if (process.env.BOT_TOKEN) {
   bot.catch((err, ctx) => {
     console.error('❌ Ошибка бота:', err)
     ctx.reply('❌ Произошла ошибка. Попробуйте позже.')
+  })
+
+  // Обработчики callback запросов
+  bot.action('main_menu', CallbackHandlers.handleMainMenu)
+  bot.action('my_orders', CallbackHandlers.handleMyOrders)
+  bot.action('support', CallbackHandlers.handleSupport)
+  bot.action('about', CallbackHandlers.handleAbout)
+  bot.action('admin_orders', CallbackHandlers.handleAdminOrders)
+  bot.action('admin_stats', CallbackHandlers.handleAdminStats)
+
+  // Обработчики действий с заказами
+  bot.action(/view_order_(.+)/, async (ctx) => {
+    const orderId = ctx.match[1]
+    await CallbackHandlers.handleViewOrder(ctx, orderId)
+  })
+
+  bot.action(/confirm_order_(.+)/, async (ctx) => {
+    const orderId = ctx.match[1]
+    await CallbackHandlers.handleConfirmOrder(ctx, orderId)
+  })
+
+  bot.action(/ship_order_(.+)/, async (ctx) => {
+    const orderId = ctx.match[1]
+    await CallbackHandlers.handleShipOrder(ctx, orderId)
+  })
+
+  bot.action(/deliver_order_(.+)/, async (ctx) => {
+    const orderId = ctx.match[1]
+    await CallbackHandlers.handleDeliverOrder(ctx, orderId)
+  })
+
+  bot.action(/cancel_order_(.+)/, async (ctx) => {
+    const orderId = ctx.match[1]
+    await CallbackHandlers.handleCancelOrder(ctx, orderId)
   })
 
   // Запускаем бота
