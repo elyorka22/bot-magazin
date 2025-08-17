@@ -16,17 +16,16 @@ export default function HomePage() {
   const [showCart, setShowCart] = useState(false)
 
   useEffect(() => {
-    // Инициализация Telegram WebApp
     initializeTelegramApp()
   }, [])
 
   const addToCart = (product: Product) => {
     const existingItem = cartItems.find(item => item.product_id === product.id)
-    
+
     if (existingItem) {
-      setCartItems(prev => 
-        prev.map(item => 
-          item.product_id === product.id 
+      setCartItems(prev =>
+        prev.map(item =>
+          item.product_id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
@@ -42,9 +41,9 @@ export default function HomePage() {
   }
 
   const updateCartItemQuantity = (productId: string, quantity: number) => {
-    setCartItems(prev => 
-      prev.map(item => 
-        item.product_id === productId 
+    setCartItems(prev =>
+      prev.map(item =>
+        item.product_id === productId
           ? { ...item, quantity }
           : item
       )
@@ -68,16 +67,13 @@ export default function HomePage() {
       const result = await response.json()
 
       if (result.success) {
-        // Очищаем корзину после успешного заказа
         setCartItems([])
-        
-        // Показываем уведомление об успешном заказе
-        alert('Заказ успешно оформлен! Мы свяжемся с вами в ближайшее время.')
+        alert('Buyurtma muvaffaqiyatli berildi! Tez orada siz bilan bog\'lanamiz.')
       } else {
-        throw new Error(result.error || 'Ошибка оформления заказа')
+        throw new Error(result.error || 'Buyurtma berishda xatolik')
       }
     } catch (error) {
-      console.error('Ошибка оформления заказа:', error)
+      console.error('Buyurtma berishda xatolik:', error)
       throw error
     }
   }
@@ -87,7 +83,7 @@ export default function HomePage() {
     setShowMenu(false)
   }
 
-  const filteredProducts = selectedCategory 
+  const filteredProducts = selectedCategory
     ? mockProducts.filter(product => product.category_id === selectedCategory.id)
     : mockProducts
 
@@ -95,33 +91,38 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-tg-dark">
-      <Header 
+      <Header
         cartItemsCount={cartItemsCount}
         onCartClick={() => setShowCart(true)}
         onMenuClick={() => setShowMenu(!showMenu)}
       />
 
-      {/* Мобильное меню */}
+      {/* Mobile Menu */}
       {showMenu && (
-        <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setShowMenu(false)}>
-          <div className="absolute right-0 top-0 h-full w-64 bg-tg-gray-900 shadow-xl p-4" onClick={e => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-tg-light mb-4">Категории</h2>
-            <div className="space-y-2">
+        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden">
+          <div className="bg-tg-gray-900 h-full w-64 p-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-bold text-tg-light">Menu</h2>
               <button
-                onClick={() => handleCategoryClick(null as any)}
-                className={`w-full text-left p-3 rounded-lg transition-colors ${
-                  !selectedCategory ? 'bg-tg-primary text-tg-dark' : 'hover:bg-tg-gray-800 text-tg-light'
-                }`}
+                onClick={() => setShowMenu(false)}
+                className="p-1 rounded-lg hover:bg-tg-gray-800 transition-colors"
               >
-                Все товары
+                <span className="text-tg-light text-xl">×</span>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <button
+                onClick={() => setShowMenu(false)}
+                className="w-full text-left p-3 rounded-lg hover:bg-tg-gray-800 transition-colors text-tg-light"
+              >
+                Barcha mahsulotlar
               </button>
               {mockCategories.map(category => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors ${
-                    selectedCategory?.id === category.id ? 'bg-tg-primary text-tg-dark' : 'hover:bg-tg-gray-800 text-tg-light'
-                  }`}
+                  className="w-full text-left p-3 rounded-lg hover:bg-tg-gray-800 transition-colors text-tg-light"
                 >
                   {category.name}
                 </button>
@@ -131,7 +132,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Корзина */}
+      {/* Cart Component */}
       {showCart && (
         <Cart
           cartItems={cartItems}
@@ -143,49 +144,60 @@ export default function HomePage() {
       )}
 
       <main className="p-3">
-        {/* Категории */}
+        {/* Categories Section */}
         <section className="mb-6">
-          <h2 className="text-xl font-bold text-tg-light mb-3">Категории</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-tg-light">Kategoriyalar</h2>
+            {selectedCategory && (
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className="text-sm text-tg-primary hover:underline"
+              >
+                Hammasini ko'rsatish
+              </button>
+            )}
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {mockCategories.map(category => (
-              <CategoryCard 
-                key={category.id} 
-                category={category} 
+              <CategoryCard
+                key={category.id}
+                category={category}
                 onClick={handleCategoryClick}
               />
             ))}
           </div>
         </section>
 
-        {/* Товары */}
+        {/* Products Section */}
         <section>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-tg-light">
-              {selectedCategory ? selectedCategory.name : 'Популярные товары'}
+              {selectedCategory ? selectedCategory.name : 'Barcha mahsulotlar'}
             </h2>
             {selectedCategory && (
               <button
                 onClick={() => setSelectedCategory(null)}
-                className="text-tg-primary hover:text-tg-light transition-colors text-sm"
+                className="text-sm text-tg-primary hover:underline"
               >
-                Показать все
+                Hammasini ko'rsatish
               </button>
             )}
           </div>
           
-          <div className="grid grid-cols-2 gap-3">
-            {filteredProducts.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onAddToCart={addToCart}
-              />
-            ))}
-          </div>
-          
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-6">
-              <p className="text-tg-gray-400 text-sm">Товары не найдены</p>
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-tg-gray-400">Mahsulotlar topilmadi</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {filteredProducts.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={addToCart}
+                />
+              ))}
             </div>
           )}
         </section>

@@ -14,11 +14,11 @@ export default function AdminPage() {
   const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
-    // Инициализация Telegram WebApp
+    // Telegram WebApp ni ishga tushirish
     initializeTelegramApp()
     
-    // Проверка авторизации (в реальном приложении здесь должна быть проверка токена)
-    // Пока что просто разрешаем доступ
+    // Avtorizatsiya tekshiruvi (haqiqiy ilovada bu yerda token tekshiruvi bo'lishi kerak)
+    // Hozircha faqat ruxsat beramiz
     setIsAuthorized(true)
   }, [])
 
@@ -26,8 +26,8 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen bg-tg-dark flex items-center justify-center">
         <div className="bg-tg-gray-900 rounded-xl p-6 max-w-sm w-full mx-4">
-          <h1 className="text-xl font-bold text-tg-light mb-4">Доступ запрещен</h1>
-          <p className="text-tg-gray-400">У вас нет доступа к админ-панели.</p>
+          <h1 className="text-xl font-bold text-tg-light mb-4">Kirish taqiqlangan</h1>
+          <p className="text-tg-gray-400">Sizda admin paneliga kirish huquqi yo'q.</p>
         </div>
       </div>
     )
@@ -42,13 +42,13 @@ export default function AdminPage() {
         isAdmin={true}
       />
 
-      {/* Админ заголовок */}
+      {/* Admin sarlavhasi */}
       <div className="p-4 border-b border-tg-gray-700">
-        <h1 className="text-xl font-bold text-tg-light">Админ-панель</h1>
-        <p className="text-tg-gray-400 text-sm">Управление магазином</p>
+        <h1 className="text-xl font-bold text-tg-light">Admin paneli</h1>
+        <p className="text-tg-gray-400 text-sm">Do'konni boshqarish</p>
       </div>
 
-      {/* Навигация по вкладкам */}
+      {/* Tab navigatsiyasi */}
       <div className="p-4 border-b border-tg-gray-700">
         <div className="flex space-x-2">
           <button
@@ -59,7 +59,7 @@ export default function AdminPage() {
                 : 'bg-tg-gray-800 text-tg-light hover:bg-tg-gray-700'
             }`}
           >
-            🛍 Товары
+            🛍 Mahsulotlar
           </button>
           <button
             onClick={() => setActiveTab('orders')}
@@ -69,7 +69,7 @@ export default function AdminPage() {
                 : 'bg-tg-gray-800 text-tg-light hover:bg-tg-gray-700'
             }`}
           >
-            📦 Заказы
+            📦 Buyurtmalar
           </button>
           <button
             onClick={() => setActiveTab('stats')}
@@ -79,12 +79,12 @@ export default function AdminPage() {
                 : 'bg-tg-gray-800 text-tg-light hover:bg-tg-gray-700'
             }`}
           >
-            📊 Статистика
+            📊 Statistika
           </button>
         </div>
       </div>
 
-      {/* Контент вкладок */}
+      {/* Tab kontenti */}
       <div className="p-4">
         {activeTab === 'products' && <AdminProducts />}
         {activeTab === 'orders' && <AdminOrders />}

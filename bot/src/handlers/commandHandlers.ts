@@ -9,29 +9,29 @@ export class CommandHandlers {
     const isAdmin = adminChatId && userId?.toString() === adminChatId
 
     const welcomeMessage = `
-🎉 *Добро пожаловать в магазин "Мужской стиль"!*
+🎉 *"Erkaklar uslubi" do'koniga xush kelibsiz!*
 
-Здесь вы можете:
-• 🛍 Просматривать товары
-• 📦 Оформлять заказы
-• 💳 Оплачивать наличными при получении
-• 📞 Получать поддержку
+Bu yerda siz:
+• 🛍 Mahsulotlarni ko'rishingiz mumkin
+• 📦 Buyurtma berishingiz mumkin
+• 💳 Yetkazib berishda naqd pul bilan to'lashingiz mumkin
+• 📞 Qo'llab-quvvatlash olishingiz mumkin
 
-Выберите действие:
+Amalni tanlang:
     `
 
-    // Разные клавиатуры для админа и обычного пользователя
+    // Admin va oddiy foydalanuvchi uchun turli xil klaviaturalar
     const keyboard = isAdmin 
       ? [
-          ['🛍 Открыть магазин'],
-          ['📦 Мои заказы', '📞 Поддержка'],
-          ['⚙️ Админ-панель'],
-          ['ℹ️ О магазине']
+          ['🛍 Do\'konni ochish'],
+          ['📦 Mening buyurtmalarim', '📞 Qo\'llab-quvvatlash'],
+          ['⚙️ Admin paneli'],
+          ['ℹ️ Do\'kon haqida']
         ]
       : [
-          ['🛍 Открыть магазин'],
-          ['📦 Мои заказы', '📞 Поддержка'],
-          ['ℹ️ О магазине']
+          ['🛍 Do\'konni ochish'],
+          ['📦 Mening buyurtmalarim', '📞 Qo\'llab-quvvatlash'],
+          ['ℹ️ Do\'kon haqida']
         ]
 
     await ctx.reply(welcomeMessage, {
@@ -50,38 +50,38 @@ export class CommandHandlers {
     const isAdmin = adminChatId && userId?.toString() === adminChatId
 
     const helpMessage = `
-🤝 *Помощь по использованию бота*
+🤝 *Botdan foydalanish bo'yicha yordam*
 
-*Основные команды:*
-/start - Главное меню
-/orders - Мои заказы
-/support - Служба поддержки
-/about - О магазине
+*Asosiy buyruqlar:*
+/start - Bosh menyu
+/orders - Mening buyurtmalarim
+/support - Qo'llab-quvvatlash xizmati
+/about - Do'kon haqida
 
-*Как сделать заказ:*
-1. Нажмите "🛍 Открыть магазин"
-2. Выберите товары и добавьте в корзину
-3. Заполните форму заказа
-4. Ожидайте звонка для подтверждения
+*Buyurtma qanday beriladi:*
+1. "🛍 Do'konni ochish" tugmasini bosing
+2. Mahsulotlarni tanlang va savatga qo'shing
+3. Buyurtma formasini to'ldiring
+4. Tasdiqlash uchun qo'ng'iroqni kuting
 
-*Оплата:* наличными при получении
-*Доставка:* по вашему адресу
+*To'lov:* yetkazib berishda naqd pul bilan
+*Yetkazib berish:* sizning manzilingizga
 
-Выберите действие:
+Amalni tanlang:
     `
 
-    // Разные клавиатуры для админа и обычного пользователя
+    // Admin va oddiy foydalanuvchi uchun turli xil klaviaturalar
     const keyboard = isAdmin 
       ? [
-          ['🛍 Открыть магазин'],
-          ['📦 Мои заказы', '📞 Поддержка'],
-          ['⚙️ Админ-панель'],
-          ['ℹ️ О магазине']
+          ['🛍 Do\'konni ochish'],
+          ['📦 Mening buyurtmalarim', '📞 Qo\'llab-quvvatlash'],
+          ['⚙️ Admin paneli'],
+          ['ℹ️ Do\'kon haqida']
         ]
       : [
-          ['🛍 Открыть магазин'],
-          ['📦 Мои заказы', '📞 Поддержка'],
-          ['ℹ️ О магазине']
+          ['🛍 Do\'konni ochish'],
+          ['📦 Mening buyurtmalarim', '📞 Qo\'llab-quvvatlash'],
+          ['ℹ️ Do\'kon haqida']
         ]
 
     await ctx.reply(helpMessage, {
@@ -97,7 +97,7 @@ export class CommandHandlers {
   static async handleOrders(ctx: Context) {
     const userId = ctx.from?.id
     if (!userId) {
-      await ctx.reply('❌ Ошибка: не удалось определить пользователя')
+      await ctx.reply('❌ Xatolik: foydalanuvchini aniqlab bo\'lmadi')
       return
     }
 
@@ -105,11 +105,11 @@ export class CommandHandlers {
       const orders = await OrderService.getUserOrders(userId)
       
       if (orders.length === 0) {
-        await ctx.reply('📦 У вас пока нет заказов', {
+        await ctx.reply('📦 Sizda hali buyurtmalar yo\'q', {
           reply_markup: {
             keyboard: [
-              ['🛍 Сделать первый заказ'],
-              ['🔙 Главное меню']
+              ['🛍 Birinchi buyurtma berish'],
+              ['🔙 Bosh menyu']
             ],
             resize_keyboard: true,
             one_time_keyboard: false
@@ -123,39 +123,39 @@ export class CommandHandlers {
         parse_mode: 'Markdown',
         reply_markup: {
           keyboard: [
-            ['🛍 Сделать новый заказ'],
-            ['🔙 Главное меню']
+            ['🛍 Yangi buyurtma berish'],
+            ['🔙 Bosh menyu']
           ],
           resize_keyboard: true,
           one_time_keyboard: false
         }
       })
     } catch (error) {
-      console.error('Ошибка получения заказов:', error)
-      await ctx.reply('❌ Произошла ошибка при получении заказов')
+      console.error('Buyurtmalarni olishda xatolik:', error)
+      await ctx.reply('❌ Buyurtmalarni olishda xatolik yuz berdi')
     }
   }
 
   static async handleSupport(ctx: Context) {
     const supportMessage = `
-📞 *Служба поддержки*
+📞 *Qo'llab-quvvatlash xizmati*
 
-Если у вас есть вопросы по заказам, доставке или товарам, напишите нам сообщение, и мы ответим в ближайшее время.
+Agar sizda buyurtmalar, yetkazib berish yoki mahsulotlar bo'yicha savollaringiz bo'lsa, bizga xabar yozing va biz tez orada javob beramiz.
 
-*Время работы:* 9:00 - 21:00 (МСК)
-*Способы связи:*
-• Через этот бот
-• Телефон: +7 (XXX) XXX-XX-XX
+*Ish vaqti:* 9:00 - 21:00 (Toshkent vaqti)
+*Bog'lanish usullari:*
+• Ushbu bot orqali
+• Telefon: +998 (XX) XXX-XX-XX
 • Email: support@example.com
 
-Напишите ваш вопрос:
+Savolingizni yozing:
     `
 
     await ctx.reply(supportMessage, {
       parse_mode: 'Markdown',
       reply_markup: {
         keyboard: [
-          ['🔙 Главное меню']
+          ['🔙 Bosh menyu']
         ],
         resize_keyboard: true,
         one_time_keyboard: false
@@ -165,34 +165,34 @@ export class CommandHandlers {
 
   static async handleAbout(ctx: Context) {
     const aboutMessage = `
-🏪 *О магазине "Мужской стиль"*
+🏪 *"Erkaklar uslubi" do'koni haqida*
 
-Мы специализируемся на качественной мужской одежде и аксессуарах.
+Biz sifatli erkaklar kiyimi va aksessuarlariga ixtisoslashganmiz.
 
-*Наши преимущества:*
-• ✅ Качественные материалы
-• 🚚 Быстрая доставка
-• 💳 Оплата при получении
-• 🔄 Возврат в течение 14 дней
-• 📞 Поддержка 24/7
+*Bizning afzalliklarimiz:*
+• ✅ Sifatli materiallar
+• 🚚 Tez yetkazib berish
+• 💳 Yetkazib berishda to'lov
+• 🔄 14 kun ichida qaytarish
+• 📞 24/7 qo'llab-quvvatlash
 
-*Категории товаров:*
-• 👔 Костюмы и пиджаки
-• 👕 Рубашки и футболки
-• 👖 Брюки и джинсы
-• 👟 Обувь
-• 🎒 Аксессуары
+*Mahsulot kategoriyalari:*
+• 👔 Kostyumlar va pidjaklar
+• 👕 Ko'ylaklar va futbolkalar
+• 👖 Shimlar va jinsi
+• 👟 Oyoq kiyim
+• 🎒 Aksessuarlar
 
-*Доставка:* по всей России
-*Оплата:* наличными при получении
+*Yetkazib berish:* butun O'zbekiston bo'ylab
+*To'lov:* yetkazib berishda naqd pul bilan
     `
 
     await ctx.reply(aboutMessage, {
       parse_mode: 'Markdown',
       reply_markup: {
         keyboard: [
-          ['🛍 Перейти в магазин'],
-          ['🔙 Главное меню']
+          ['🛍 Do\'konga o\'tish'],
+          ['🔙 Bosh menyu']
         ],
         resize_keyboard: true,
         one_time_keyboard: false
@@ -201,43 +201,43 @@ export class CommandHandlers {
   }
 
   static async handleStats(ctx: Context) {
-    // Проверяем, является ли пользователь админом
+    // Foydalanuvchining admin ekanligini tekshiramiz
     const adminChatId = process.env.ADMIN_CHAT_ID
     const userId = ctx.from?.id
 
     if (!adminChatId || userId?.toString() !== adminChatId) {
-      await ctx.reply('❌ У вас нет доступа к этой команде')
+      await ctx.reply('❌ Sizda bu buyruqni bajarish huquqi yo\'q')
       return
     }
 
     try {
       const stats = await OrderService.getOrderStats()
       const statsMessage = `
-📊 *Статистика магазина*
+📊 *Do\'kon statistikasi*
 
-*Заказы:*
-• Всего заказов: ${stats.total}
-• Новых заказов: ${stats.pending}
-• Подтвержденных: ${stats.confirmed}
-• Отправленных: ${stats.shipped}
-• Доставленных: ${stats.delivered}
-• Отмененных: ${stats.cancelled}
+*Buyurtmalar:*
+• Jami buyurtmalar: ${stats.total}
+• Yangi buyurtmalar: ${stats.pending}
+• Tasdiqlangan: ${stats.confirmed}
+• Yuborilgan: ${stats.shipped}
+• Yetkazib berilgan: ${stats.delivered}
+• Bekor qilingan: ${stats.cancelled}
     `
 
       await ctx.reply(statsMessage, {
         parse_mode: 'Markdown',
         reply_markup: {
           keyboard: [
-            ['➕ Добавить товар'],
-            ['📦 Все заказы', '🔙 Главное меню']
+            ['➕ Mahsulot qo\'shish'],
+            ['📦 Barcha buyurtmalar', '🔙 Bosh menyu']
           ],
           resize_keyboard: true,
           one_time_keyboard: false
         }
       })
     } catch (error) {
-      console.error('Ошибка получения статистики:', error)
-      await ctx.reply('❌ Произошла ошибка при получении статистики')
+      console.error('Statistikani olishda xatolik:', error)
+      await ctx.reply('❌ Statistikani olishda xatolik yuz berdi')
     }
   }
 } 

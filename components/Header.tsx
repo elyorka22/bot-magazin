@@ -25,12 +25,12 @@ export const Header: React.FC<HeaderProps> = ({
             <Menu className="w-5 h-5" />
           </button>
           <h1 className="text-lg font-bold">
-            {isAdmin ? 'Админ-панель' : 'Мужской стиль'}
+            {isAdmin ? 'Admin paneli' : 'Erkaklar uslubi'}
           </h1>
           {isAdmin && (
             <div className="flex items-center gap-1 text-tg-primary text-xs">
               <Settings className="w-3 h-3" />
-              <span>Админ</span>
+              <span>Admin</span>
             </div>
           )}
         </div>
