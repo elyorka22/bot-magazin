@@ -211,33 +211,73 @@ bot.catch((err, ctx) => {
 async function startBot() {
   try {
     console.log('🚀 Запуск Telegram бота...')
+    console.log('📋 Проверка переменных окружения...')
+    
+    // Проверяем переменные окружения
+    if (!process.env.BOT_TOKEN) {
+      console.error('❌ BOT_TOKEN не найден в переменных окружения')
+      process.exit(1)
+    }
+    console.log('✅ BOT_TOKEN найден')
+    
+    if (!process.env.ADMIN_CHAT_ID) {
+      console.log('⚠️  ADMIN_CHAT_ID не найден')
+    } else {
+      console.log('✅ ADMIN_CHAT_ID найден')
+    }
     
     // Проверяем подключение к базе данных
+    console.log('🔗 Проверка подключения к базе данных...')
     const dbConnected = await testConnection()
     if (!dbConnected) {
       console.log('⚠️  Бот запускается в режиме тестирования без базы данных')
+    } else {
+      console.log('✅ Подключение к базе данных успешно')
     }
 
-    // Запускаем бота
+    // Запускаем бота в polling режиме (важно для Railway)
+    console.log('🤖 Запуск бота в polling режиме...')
     await bot.launch()
+    
     console.log('✅ Бот успешно запущен!')
-    console.log('🤖 Имя бота:', (await bot.telegram.getMe()).first_name)
+    
+    try {
+      const botInfo = await bot.telegram.getMe()
+      console.log('🤖 Имя бота:', botInfo.first_name)
+      console.log('🤖 Username бота:', botInfo.username)
+    } catch (error) {
+      console.error('❌ Ошибка получения информации о боте:', error)
+    }
     
     // Устанавливаем команды бота
-    await bot.telegram.setMyCommands([
-      { command: 'start', description: 'Главное меню' },
-      { command: 'help', description: 'Помощь' },
-      { command: 'orders', description: 'Мои заказы' },
-      { command: 'support', description: 'Поддержка' },
-      { command: 'about', description: 'О магазине' }
-    ])
+    try {
+      await bot.telegram.setMyCommands([
+        { command: 'start', description: 'Главное меню' },
+        { command: 'help', description: 'Помощь' },
+        { command: 'orders', description: 'Мои заказы' },
+        { command: 'support', description: 'Поддержка' },
+        { command: 'about', description: 'О магазине' }
+      ])
+      console.log('✅ Команды бота установлены')
+    } catch (error) {
+      console.error('❌ Ошибка установки команд бота:', error)
+    }
 
     // Graceful stop
-    process.once('SIGINT', () => bot.stop('SIGINT'))
-    process.once('SIGTERM', () => bot.stop('SIGTERM'))
+    process.once('SIGINT', () => {
+      console.log('🛑 Получен сигнал SIGINT, останавливаем бота...')
+      bot.stop('SIGINT')
+    })
+    process.once('SIGTERM', () => {
+      console.log('🛑 Получен сигнал SIGTERM, останавливаем бота...')
+      bot.stop('SIGTERM')
+    })
+    
+    console.log('🎉 Бот полностью готов к работе!')
     
   } catch (error) {
     console.error('❌ Ошибка запуска бота:', error)
+    console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'Unknown error')
     process.exit(1)
   }
 }
