@@ -77,8 +77,8 @@ export const Cart: React.FC<CartProps> = ({
 
   if (cartItems.length === 0) {
     return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-        <div className="bg-tg-gray-900 rounded-xl p-6 max-w-sm w-full mx-4">
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-tg-gray-900 rounded-xl p-6 max-w-sm w-full">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-tg-light">Корзина</h2>
             <button
@@ -105,9 +105,9 @@ export const Cart: React.FC<CartProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-      <div className="bg-tg-gray-900 rounded-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden">
-        <div className="p-4 border-b border-tg-gray-700">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-tg-gray-900 rounded-xl w-full max-w-md max-h-[95vh] flex flex-col">
+        <div className="p-4 border-b border-tg-gray-700 flex-shrink-0">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-tg-light">Корзина</h2>
             <button
@@ -119,14 +119,14 @@ export const Cart: React.FC<CartProps> = ({
           </div>
         </div>
 
-        <div className="overflow-y-auto max-h-[60vh]">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-4 space-y-3">
             {cartItems.map((item) => (
               <div key={item.id} className="flex items-center gap-3 p-3 bg-tg-gray-800 rounded-lg">
                 <img
                   src={item.product.images[0] || '/placeholder-product.jpg'}
                   alt={item.product.name}
-                  className="w-12 h-12 object-cover rounded"
+                  className="w-12 h-12 object-cover rounded flex-shrink-0"
                 />
                 
                 <div className="flex-1 min-w-0">
@@ -138,7 +138,7 @@ export const Cart: React.FC<CartProps> = ({
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => handleQuantityChange(item.product_id, item.quantity - 1)}
                     className="p-1 rounded hover:bg-tg-gray-700 transition-colors"
@@ -169,7 +169,7 @@ export const Cart: React.FC<CartProps> = ({
           </div>
         </div>
 
-        <div className="p-4 border-t border-tg-gray-700">
+        <div className="p-4 border-t border-tg-gray-700 flex-shrink-0">
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
               <span className="text-tg-light">Итого:</span>

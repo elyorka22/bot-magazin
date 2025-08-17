@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Product } from '../types'
 
 interface ProductCardProps {
@@ -10,10 +10,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onAddToCart
 }) => {
+  const [isAdding, setIsAdding] = useState(false)
+  
   const hasDiscount = product.sale_price && product.sale_price < product.price
   const discountPercentage = hasDiscount 
     ? Math.round((1 - product.sale_price! / product.price) * 100)
     : 0
+
+  const handleAddToCart = () => {
+    if (product.stock_quantity === 0) return
+    
+    setIsAdding(true)
+    onAddToCart(product)
+    
+    // Возвращаем исходный текст через 1.5 секунды
+    setTimeout(() => {
+      setIsAdding(false)
+    }, 1500)
+  }
 
   return (
     <div className="product-card slide-in-up">
@@ -60,11 +74,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
         
         <button
-          onClick={() => onAddToCart(product)}
-          disabled={product.stock_quantity === 0}
-          className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-xs py-1.5"
+          onClick={handleAddToCart}
+          disabled={product.stock_quantity === 0 || isAdding}
+          className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-xs py-1.5 transition-all duration-200"
         >
-          {product.stock_quantity === 0 ? 'Нет в наличии' : 'В корзину'}
+          {product.stock_quantity === 0 
+            ? 'Нет в наличии' 
+            : isAdding 
+              ? '✓ Добавлено!' 
+              : 'В корзину'
+          }
         </button>
       </div>
     </div>
