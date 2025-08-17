@@ -4,6 +4,10 @@ import { OrderService } from '../services/orderService'
 
 export class CommandHandlers {
   static async handleStart(ctx: Context) {
+    const userId = ctx.from?.id
+    const adminChatId = process.env.ADMIN_CHAT_ID
+    const isAdmin = adminChatId && userId?.toString() === adminChatId
+
     const welcomeMessage = `
 🎉 *Добро пожаловать в магазин "Мужской стиль"!*
 
@@ -16,14 +20,24 @@ export class CommandHandlers {
 Выберите действие:
     `
 
-    await ctx.reply(welcomeMessage, {
-      parse_mode: 'Markdown',
-      reply_markup: {
-        keyboard: [
+    // Разные клавиатуры для админа и обычного пользователя
+    const keyboard = isAdmin 
+      ? [
+          ['🛍 Открыть магазин'],
+          ['📦 Мои заказы', '📞 Поддержка'],
+          ['⚙️ Админ-панель'],
+          ['ℹ️ О магазине']
+        ]
+      : [
           ['🛍 Открыть магазин'],
           ['📦 Мои заказы', '📞 Поддержка'],
           ['ℹ️ О магазине']
-        ],
+        ]
+
+    await ctx.reply(welcomeMessage, {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        keyboard,
         resize_keyboard: true,
         one_time_keyboard: false
       }
@@ -31,6 +45,10 @@ export class CommandHandlers {
   }
 
   static async handleHelp(ctx: Context) {
+    const userId = ctx.from?.id
+    const adminChatId = process.env.ADMIN_CHAT_ID
+    const isAdmin = adminChatId && userId?.toString() === adminChatId
+
     const helpMessage = `
 🤝 *Помощь по использованию бота*
 
@@ -52,14 +70,24 @@ export class CommandHandlers {
 Выберите действие:
     `
 
-    await ctx.reply(helpMessage, {
-      parse_mode: 'Markdown',
-      reply_markup: {
-        keyboard: [
+    // Разные клавиатуры для админа и обычного пользователя
+    const keyboard = isAdmin 
+      ? [
+          ['🛍 Открыть магазин'],
+          ['📦 Мои заказы', '📞 Поддержка'],
+          ['⚙️ Админ-панель'],
+          ['ℹ️ О магазине']
+        ]
+      : [
           ['🛍 Открыть магазин'],
           ['📦 Мои заказы', '📞 Поддержка'],
           ['ℹ️ О магазине']
-        ],
+        ]
+
+    await ctx.reply(helpMessage, {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        keyboard,
         resize_keyboard: true,
         one_time_keyboard: false
       }

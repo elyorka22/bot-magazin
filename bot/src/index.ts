@@ -120,6 +120,27 @@ if (process.env.BOT_TOKEN) {
         await CommandHandlers.handleAbout(ctx)
         break
 
+      case '⚙️ Админ-панель':
+        // Проверяем, является ли пользователь админом
+        const adminChatId0 = process.env.ADMIN_CHAT_ID
+        const userId0 = ctx.from?.id
+
+        if (!adminChatId0 || userId0?.toString() !== adminChatId0) {
+          await ctx.reply('❌ У вас нет доступа к этой функции')
+          return
+        }
+
+        await ctx.reply('Открываю админ-панель...', {
+          reply_markup: {
+            keyboard: [
+              [{ text: '⚙️ Админ-панель', web_app: { url: `${process.env.MINI_APP_URL}/admin` } }]
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: false
+          }
+        })
+        break
+
       case '🔙 Главное меню':
         await CommandHandlers.handleStart(ctx)
         break
